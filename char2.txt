@@ -1,0 +1,384 @@
+# 第2章 查询基础
+
+## 2-1 SELECT语句基础
+
+- 从表中选取数据时需要使用**SELECT语句**，也就是只从表中选出(SELECT)必要数据的意思
+
+- 通过SELECT语句查询并选取出必要数据的过程称为**匹配查询**或**查询(query)**
+
+- ```mysql
+	SELECT <列名>,......
+		FROM <表名>;
+	```
+	
+- 该SELECT语句包含了SELECT和FROM两个**子句**(chase)。子句是SQL语句的组成要素，是以SELECT或FROM等作为起始的短语
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT product_id, product_name, purchase_price
+		FROM Product
+	```
+
+	- **查询结果中列的顺序和SELECT子句中的顺序相同**
+
+	- 想要查询出全部列时，可以使用代表所有列的**星号**（*）
+
+		```mysql
+		USE shop_demo;
+		
+		SELECT *
+			FROM PRODUCT
+		```
+
+		```mysql
+		USE shop_demo;
+		
+		SELECT product_id, product_name, product_type, sale_price, purchase_price, regist_date
+			FROM product
+		```
+
+		
+
+- 上面两个代码清单具有相同含义SELECT语句
+
+- **如果使用星号的话，就无法设定列的显示顺序了**，这时就会按照CREATE TABLE语句的定义对列进行排序
+
+- SQL语句可以使用**AS关键字**为列设定**别名**
+
+	```mysql
+	use shop_demo;
+	
+	select product_id as id,
+		product_name as name,
+	    purchase_price as price
+	    from product;
+	```
+
+	- 别名可以使用中文，使用中文时需要用**双引号（“ ”）**括起来，**不是单引号**
+
+		```mysql
+		use shop_demo;
+		
+		select product_id as "商品编号",
+			product_name as "商品名称",
+		    purchase_price as "进货单价"
+		    from product;
+		```
+
+- 常数的查询
+
+	```mysql
+	use shop_demo;
+	
+	select '商品' as string, 38 as number, '2009-02-24' as date,
+		product_id, product_name
+	    from product
+	```
+
+	- 代码清单中的SELECT 子句中的第一列'商品' 是 字符串常数，第2 列38 是 数字常数，第3列'2009-02-24' 是日期常数 ，它们将与product_id列和product_name 列一起被查询出来
+
+- 从结果中删除重复行
+
+	```mysql
+	use shop_demo;
+	
+	select distinct product_type
+		from product;
+	```
+
+	- 在SELECT语句中使用DISTINCT可以删除重复行
+
+	- 在使用DISTINCT时，NULL也被视为一类数据。NULL存在于多行中时，也会被合并为一条NULL数据
+
+		```mysql
+		use shop_demo;
+		
+		select distinct purchase_price
+			from product;
+		```
+
+- 在多列之前使用DISTINCT
+
+	```mysql
+	use shop_demo;
+	
+	select distinct product_type, regist_date
+		from product;
+	```
+
+- **DISTINCT**关键字只能用在第一列名之前
+
+- SELECT语句通过**WHERE子句**来指定查询数据的条件
+
+	```mysql
+	use shop_demo;
+	
+	select product_name, product_type
+		from product
+	    where product_type = '衣服'
+	```
+
+	- WHERE 子句中的“product_type = '衣服'”就是用来表示查询
+		条件的表达式（**条件表达式**）
+	- 首先通过WHERE 子句查询出符合指定条件的记录，然后再选取出SELECT 语句指定的列
+
+- 也可以不选取出作为查询条件的列
+
+	```mysql
+	use shop_demo;
+	
+	select product_name
+		from product
+	    where product_type = '衣服'
+	```
+
+- **SQL中子句的书写顺序是固定的，不能随意更改。**WHERE 子句必须紧跟在FROM 子句之后，书写顺序发生改变的话会造成执行错误
+
+- 注释的书写方法
+
+	- 1行注释，书写在“--”之后，只能写在同一行
+	- 多行注释，书写在“/*”和“*/”之间，可以跨多行
+	- **任何注释都可以插在SQL 语句中**
+
+## 2-2 算术运算符和比较运算符
+
+- SQL语句中可以使用计算表达式
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT 
+	    product_name, 
+	    sale_price,
+	    sale_price * 2 AS sale_price_x2
+	FROM product;
+	```
+
+	- **运算就是这样以行为单位执行的**
+
+- **所有包含NULL 的计算，结果肯定是NULL**
+
+- 像符号= 这样用来比较其两边的列或者值的符号称为**比较运算符**，符号**=** 就是比较运算符
+
+- 选取出sale_price列为500的记录
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT 
+	    product_name, 
+	    product_type
+	FROM product
+	WHERE sale_price = 500;
+	```
+
+- 选取出sale_price列的值不是500的记录
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT 
+	    product_name, 
+	    product_type
+	FROM product
+	WHERE sale_price <> 500;
+	```
+
+- | 运算符 | 含义      |
+	| :----: | --------- |
+	|   =    | 和~相等   |
+	|   <>   | 和~不相等 |
+	|   >=   | 大于等于~ |
+	|   >    | 大于~     |
+	|   <=   | 小于等于~ |
+	|   <    | 小于~     |
+
+- 选取出销售单价大于等于1000日元的记录
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT 
+	    product_name, 
+	    product_type,
+	    sale_price
+	FROM product
+	WHERE sale_price >= 1000;
+	```
+
+- 选取出登记日期在2009年9月27日之前的记录
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT 
+	    product_name, 
+	    product_type,
+	    regist_date
+	FROM product
+	WHERE regist_date < '2009-09-27';
+	```
+
+- WHERE子句的条件表达式中也可以使用计算表达式
+
+	```mysql
+	USE shop_demo;
+	
+	SELECT 
+	    product_name,
+	    sale_price,
+	    purchase_price
+	FROM product
+	WHERE sale_price - purchase_price >= 500;
+	```
+
+- 对字符串使用不等式时的注意事项
+
+	- 创建Chars表并插入数据
+
+		```mysql
+		-- DDL：创建表
+		use shop_demo;
+		create table chars
+		(chr char(3) not null,
+		primary key (chr));
+		
+		-- DDL: 插入数据
+		start transaction;
+		
+		insert into chars values ('1');
+		insert into chars values ('2');
+		insert into chars values ('3');
+		insert into chars values ('10');
+		insert into chars values ('11');
+		insert into chars values ('222');
+		
+		commit
+		```
+
+	- 选取出大于‘2’的数据的SELECT语句
+
+		```mysql
+		use shop_demo;
+		
+		select chr
+			from chars
+		    where chr > '2';
+		```
+
+		- 执行结果是222和3
+		- chr 列被定为字符串类型，并且在对字符串类型的数据进行大小比较时，使用的是和数字比较不同的规则。典型的规则就是按照**字典顺序**进行比较，也就是像姓名那样，按照条目在字典中出现的顺序来进行排序。该规则最重要的一点就是，以相同字符开头的单词比不同字符开头的单词更相近
+		- Chars 表chr 列中的数据按照字典顺序进行排序：1–>10–>11–>2–>222–>3
+
+- **不能对NULL使用比较运算符**
+
+	- 即使使用<> 运算符也还是无法选取出NULL 的记录。因此，SQL
+		提供了专门用来判断是否为NULL 的**IS NULL 运算符**
+
+		```mysql
+		use shop_demo;
+		
+		select product_name,
+			purchase_price
+		from product
+		where purchase_price is null;
+		```
+
+	- 反之，希望选取不是NULL 的记录时，需要使用**IS NOT NULL 运**
+		**算符**
+
+		```mysql
+		use shop_demo;
+		
+		select product_name,
+			purchase_price
+		from product
+		where purchase_price is not null;
+		```
+
+## 2-3 逻辑运算符
+
+- **NOT**运算符
+
+	- NOT不能单独使用，必须和其他查询条件组合起来使用
+	- NOT运算符用来否定某一条件，但是不能滥用
+
+- AND运算符和OR运算符
+
+	- 在WHERE 子句中使用**AND 运算符**或者**OR 运算符**，可以对多个查
+		询条件进行组合
+
+	- AND 运算符**在其两侧的查询条件都成立时整个查询条件才成立**，其
+		意思相当于“并且”
+
+	- OR 运算符**在其两侧的查询条件有一个成立时整个查询条件都成立**，
+		其意思相当于“或者”
+
+	- 在WHERE子句的查询条件中使用AND运算符
+
+		```mysql
+		use shop_demo;
+		
+		select product_name,
+			purchase_price
+		from product
+		where product_type = '厨房用具'
+			and sale_price >= 3000;
+		```
+
+	- 在WHERE子句的查询条件中使用OR运算符
+
+		```mysql
+		use shop_demo;
+		
+		select product_name,
+			purchase_price
+		from product
+		where product_type = '厨房用具'
+			or sale_price >= 3000;
+		```
+
+	- 多个查询条件进行组合时，需要使用AND运算符或者OR运算符
+
+	- 文氏图很方便
+
+- 通过括号强化处理
+
+	- **AND 运算符优先于OR 运算符**
+	
+		```mysql
+		USE shop_demo;
+		
+		SELECT product_name, product_type, regist_date
+			FROM product
+			WHERE product_type = '办公用品'
+			AND regist_date = '2009-09-11' 
+			OR regist_date = '2009-09-20';
+		```
+	
+		```mysql
+		USE shop_demo;
+		
+		SELECT product_name, product_type, regist_date
+		FROM product
+		WHERE product_type = '办公用品'
+		AND (regist_date = '2009-09-11' OR regist_date = '2009-09-20');
+		
+		```
+	
+- 逻辑运算符和真值
+
+  - 本节介绍的三个运算符NOT、AND和OR称为**逻辑运算符**
+  - 这里所说的逻辑就是对**真值**进行操作的意思
+  - 真值就是值为**真(TRUE)**或**假（FALSE）**其中之一的值
+
+- 含有NULL时的真值
+
+  - 使用逻辑运算符时也需要特别对待NULL
+  - 既不是真也不是假，那结果到底是什么呢？其实这是SQL 中特有的
+    情况。这时真值是除真假之外的第三种值——**不确定（UNKNOWN）**
+
+- 与通常的逻辑运算被称为**二值逻辑**相对，只有SQL 中的逻辑运算被称为**三值逻辑**
+- Product表中设置NOT NULL约束的原因
+	- 如果要考虑NULL的话，会变得更加繁琐，考虑NULL时的条件判断也会变得异常复杂，与我们希望的结果大相径庭。因此，数据库领域的有识之士们达成了“尽量不使用NULL”的共识。这就是为什么在创建Product 表时要给某些列设置NOT NULL 约束（禁止录入NULL）的缘故。
