@@ -146,3 +146,29 @@
 	- 在GROUP BY子句中指定的列称为**聚合键**或者**分组列**
 
 	- GROUP BY子句和SELECT子句一样，可以通过逗号分隔指定多列
+
+	- GROUP BY 子句的书写位置也有严格要求，一定要写在FROM 语句之后（如果有WHERE 子句的话需要写在WHERE 子句之后）
+
+- 聚合键中包含NULL的情况
+
+	- 按照进货单价统计数据行数
+
+		```mysql
+		USE shop_demo;
+		
+		SELECT purchase_price, COUNT(*)
+		FROM product
+		GROUP BY purchase_price;
+		```
+
+	- 聚合键中包含NULL时，在结果中会以“不确定”行（空行）的形式表现出来
+
+- 使用WHERE子句时GROUP BY的执行结果
+
+	- 同时使用WHERE子句和GROUP BY子句
+
+		```mysql
+		
+		```
+
+		
