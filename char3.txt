@@ -1,0 +1,148 @@
+# 第3章 聚合与排序
+
+## 3-1 对表进行聚合查询
+
+- 通过SQL对数据进行某种操作或计算时需要使用**函数**
+
+- 5个常用函数：
+
+	- COUNT：计算表中的记录数（行数）
+	- SUM：计算表中数值列中数据的合计值
+	- AVG：计算表中数值列中数据的平均值
+	- MAX：求出表中任意列中数据的最大值
+	- MIN：求出表中任意列中数据的最小值
+
+- 如上所示，用于汇总的函数称为**聚合函数**或者**聚集函数**
+
+- **聚合**，就是将多行汇总一行
+
+- 计算表中数据的行数
+
+	```mysql
+	use shop_demo;
+	
+	select count(*)  -- *为参数(parameter)
+	from product;
+	```
+
+- 计算NULL之外的数据的行数
+
+	```mysql
+	use shop_demo;
+	
+	select count(purchase_price)
+	from product;
+	```
+
+	- **对于COUNT函数来说，参数列不同计算的结果也会发生变化**
+
+	- COUNT函数的结果根据参数的不同而不同。COUNT(*)会得到包含NULL的数据
+		行数，而COUNT(<列名>)会得到NULL之外的数据行数
+
+- 计算合计值
+
+	- 计算销售单价的合计值
+
+		```mysql
+		use shop_demo;
+		
+		select sum(sale_price)
+		from product;
+		```
+
+	- 计算销售单价和进货单价的合计值
+
+		```mysql
+		use shop_demo;
+		
+		select sum(sale_price), sum(purchase_price)
+		from product;
+		```
+
+	- 聚合函数会将NULL排除在外。但COUNT(*)例外，并不会排除NULL
+
+- 计算平均值
+
+	- 计算销售单价的平均值
+
+		```mysql
+		use shop_demo;
+		
+		select avg(sale_price)
+			from product;
+		```
+
+	- 计算销售单价和进货单价的平均值
+
+		```mysql
+		use shop_demo;
+		
+		select avg(sale_price), avg(purchase_price)
+			from product;
+		```
+
+- 计算最大值和最小值
+
+	- 计算销售单价的最大值和进货单价的最小值
+
+		```mysql
+		use shop_demo;
+		
+		select max(sale_price), min(purchase_price)
+			from product;
+		```
+
+	- 计算登记日期的最大值和最小值
+
+	- 
+
+		```mysql
+		use shop_demo;
+		
+		select max(regist_date), min(regist_date)
+			from product;
+		```
+
+	- MAX/MIN 函数和SUM/AVG 函数有一点不同，那就是SUM/AVG 函数只能对数值类型的列使用，而**MAX/MIN 函数原则上可以适用于任何数据类型的列**
+
+- 使用聚合函数删除重复值（关键字DISTINCT)
+
+	- 计算去除重复数据后的数据行数
+
+		```mysql
+		use shop_demo;
+		
+		select count(distinct product_type)
+			from product;
+		```
+
+	- 想要计算值的种类时，可以在COUNT函数的参数中使用DISTINCT
+
+	- 使不使用DISTINCT时的动作差异（SUM函数）
+
+		```mysql
+		use shop_demo;
+		
+		select sum(sale_price), sum(distinct sale_price)
+			from product;
+		```
+
+	- 在聚合函数的参数中使用DISTINCT，可以删除重复数据
+
+## 3-2 对表进行分组
+
+- GROUP BY子句
+
+	- 使用GROUP BY子句进行汇总
+
+		```mysql
+		USE shop_demo;
+		
+		SELECT product_type, COUNT(*)
+		FROM product
+		GROUP BY product_type;
+		```
+
+	- 在GROUP BY子句中指定的列称为**聚合键**或者**分组列**
+
+	- GROUP BY子句和SELECT子句一样，可以通过逗号分隔指定多列
