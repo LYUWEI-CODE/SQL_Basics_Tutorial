@@ -165,10 +165,115 @@
 
 - 使用WHERE子句时GROUP BY的执行结果
 
-	- 同时使用WHERE子句和GROUP BY子句
+	- 同时使用WHERE子句和GROUP BY子句进行汇总处理
 
 		```mysql
+		use shop_demo;
 		
+		select purchase_price, count(*)
+		from product
+		where product_type = '衣服'
+		group by purchase_price
+		```
+		
+	- GROUP BY和WHERE并用时SELECT语句的执行顺序：
+	  FROM–>WHERE–>GROUP BY–>SELECT
+	
+	- 在SQL语句中，书写顺序和DBMS内部的执行顺序并不相同，这也是SQL难以理解的原因之一
+	
+- 与聚合函数和GROUP BY子句有关的常见错误
+
+  - 在SELECT子句中书写了多余的列
+
+    ```mysql
+    use shop_demo;
+    
+    select product_name, purchase_price, count(*)
+    from product
+    group by purchase_price
+    ```
+
+  - 列名product_name并没有包含在group by子句中。因此，该列名也不能书写在select子句之中
+
+  - 通过某个聚合键将表分组之后，结果中的一行数据就代表一组。例如，使用进货单价将表进行分组之后，一行就代表了一个进货单价。问题就出在这里，聚合键和商品名**并不一定是一对一的**
+
+- 在group by子句中写了列的别名
+
+  ```mysql
+  use shop_demo;
+  
+  select product_type as pt, count(*)
+  from product
+  group by pt
+  ```
+
+  - 标准 SQL 中，`GROUP BY`子句不能使用`SELECT`中定义的别名。但MySQL 在某些场合下**容忍**在 `GROUP BY` 中使用 `SELECT` 中的别名。这是 MySQL 的“宽松语法”特性之一，便于开发但**不具备跨数据库兼容性**
+
+- group by子句的结果能排序吗
+
+  - GROUP BY子句结果的显示是**无序**的
+
+- 在WHERE子句中使用聚合函数
+
+  ```mysql
+  use shop_demo;
+  
+  select product_type, count(*)
+  from product
+  where count(*) = 2
+  group by product_type
+  ```
+
+  - 只有select子句和having子句（以及之后将要学到的order by子句）中能够只用count等聚合函数
+
+## 3-3 为聚合结果指定条件
+
+- HAVING子句
+
+	- HAVING 子句必须写在GROUP BY 子句之后，其在DBMS 内部的
+		执行顺序也排在GROUP BY 子句之后
+
+	- 使用HAVING 子句时SELECT 语句的顺序：SELECT → FROM → WHERE → GROUP BY → HAVING
+
+	- 从按照商品种类进行分组后的结果中，取出“包含的数据行数为2行”的组
+
+		```mysql
+		use shop_demo;
+		
+		select product_type, count(*)
+		from product
+		group by product_type
+		having count(*) = 2;
 		```
 
+	- 不使用having子句的情况
+
+		```mysql
+		use shop_demo;
 		
+		select product_type, count(*)
+		from product
+		group by product_type;
+		```
+
+	- 使用having子句设定条件的情况
+
+		```mysql
+		use shop_demo;
+		
+		select product_type, avg(sale_price)
+		from product
+		group by product_type;
+		having avg(sale_price) >= 2500;
+		```
+
+- having子句的构成要素
+
+	- 要素
+	- 聚合函数
+	- group by子句中指定的列名（即聚合键）
+
+- 相对于having子句，更适合写在WHERE子句中的条件
+
+	- WHERE 子句 = 指定行所对应的条件
+		HAVING 子句 = 指定组所对应的条件
